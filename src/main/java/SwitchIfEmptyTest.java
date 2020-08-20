@@ -28,21 +28,14 @@ public class SwitchIfEmptyTest {
             }, BackpressureStrategy.ERROR)
                     .flatMap(inputFlowable -> {
                         return source.read()
-                                .toList()
-                                .toFlowable()
-                                .flatMap(strings -> {
-                                    Flowable<String> flowable = Flowable.empty();
-                                    for (String s : strings) {
-                                        flowable = flowable.switchIfEmpty(third(s));
-                                    }
-                                    return flowable;
-                                });
+                                .flatMap(this::third)
+                                .takeWhile(s -> s.equals("false"));
                     });
         }
 
         public Flowable<String> third(String input) {
             //System.out.println("Value " + input);
-            return Flowable.empty();
+            return Flowable.just("false");
         }
     }
 
@@ -54,7 +47,7 @@ public class SwitchIfEmptyTest {
                     emitter.onNext("Some values " + i);
                 }
                 emitter.onComplete();
-            }, BackpressureStrategy.ERROR);
+            }, BackpressureStrategy.BUFFER);
         }
     }
 }
